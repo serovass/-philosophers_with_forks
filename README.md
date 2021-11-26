@@ -1,1 +1,1 @@
-# -philosophers_with_forks
+# -philosophers_with_process

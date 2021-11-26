@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main_philo.c                                       :+:      :+:    :+:   */
+/*   main_philo_bonus.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gnaida <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/20 15:20:40 by gnaida            #+#    #+#             */
-/*   Updated: 2021/11/26 14:40:16 by gnaida           ###   ########.fr       */
+/*   Created: 2021/11/26 17:11:36 by gnaida            #+#    #+#             */
+/*   Updated: 2021/11/26 17:11:46 by gnaida           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
 int	ft_parse_argc(int argc, char **argv, t_data *data)
 {
@@ -40,52 +40,55 @@ int	ft_parse_argc(int argc, char **argv, t_data *data)
 	return (-1);
 }
 
-int	ft_mutex_init(t_data *data)
+int	ft_create_philos(t_data *data, t_philo *philo)
 {
-	int	i;
+	int i;
 
-	data->mtx_forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) \
-			* data->philos);
-	if (data->mtx_forks == NULL)
-	{
-		ft_write_msg("Error! =(\n");
+	philo = (t_philo *)malloc(sizeof(t_philo) * data->philos);
+	if (philo == NULL)
 		return (-1);
-	}
-	i = 0;
+    i = 0;
 	while (i < data->philos)
 	{
-		pthread_mutex_init(&data->mtx_forks[i], NULL);
+		philo[i].philo_id = i + 1;
+		philo[i].lunches_to_eat = data->lunches;
+		philo[i].data = data;
 		i++;
 	}
-	pthread_mutex_init(&data->mtx_msg, NULL);
-	pthread_mutex_init(&data->mtx_lunch_time, NULL);
 	return (0);
 }
 
-void	ft_mutex_destroy(t_data *data)
+void ft_philo_process(t_philo *philo, int philos_num, int i)
 {
-	int	i;
-
-	i = 0;
-	while (i < data->philos)
-	{
-		pthread_mutex_destroy(&data->mtx_forks[i]);
-		i++;
-	}
-	free(data->mtx_forks);
-	pthread_mutex_destroy(&data->mtx_msg);
-	pthread_mutex_destroy(&data->mtx_lunch_time);
+    while (i < philos_num)
+    {
+		philo[i].philo_pid = fork();
+		if (philo[i].philo_pid == 0)
+			//simulation_fanction(&philo[i]);//
+		i += 2;
+    }
 }
 
 int	main(int argc, char **argv)
 {
 	t_data	data;
+	t_philo *philo;
 
 	if (ft_parse_argc(argc, argv, &data) < 0)
 		return (0);
-	if (ft_mutex_init(&data) < 0)
+	sem_unlink("sem_forks");
+	sem_unlink("sem_msg");
+	data.sem_forks = sem_open("sem_forks", O_CREAT, S_IRWXU, data.philos / 2);
+	data.sem_msg = sem_open("sem_msg", S_IRWXU, O_CREAT, 1);
+	if (ft_create_philos(&data, philo) < 0)
 		return (0);
-	ft_philo_threads(&data);
-	ft_mutex_destroy(&data);
+	ft_philo_process(philo, data.philos, 0);
+	ft_philo_process(philo, data.philos, 1);
+	waitpid(-1, NULL, 0);
+	//kill_philos_process();//
+	sem_close(data.sem_forks);
+	sem_close(data.sem_msg);
+	sem_unlink("sem_forks");
+	sem_unlink("sem_msg");
 	return (0);
 }

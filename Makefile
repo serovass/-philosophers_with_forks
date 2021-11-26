@@ -2,12 +2,11 @@ NAME = philo
 
 HEADER = philo.h
 
-LIST =	main_philo.c\
-		philo_threads_create.c\
-		philo_simulation_fanction.c\
-		utils_philo_0.c\
-		utils_philo_1.c\
-		utils_philo_2.c\
+LIST =	main_philo_bonus.c\
+		philo_simulation_fanction_bonus.c\
+		utils_philo_0_bonus.c\
+		utils_philo_1_bonus.c\
+		utils_philo_2_bonus.c\
 
 OBJ = ${LIST:.c=.o}
 
