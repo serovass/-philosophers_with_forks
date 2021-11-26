@@ -16,7 +16,6 @@ int	ft_parse_argc(int argc, char **argv, t_data *data)
 {
 	if (argc == 5 || argc == 6)
 	{
-		data->death_flag = 0;
 		data->philos = ft_atoi(argv[1]);
 		data->die_time = ft_atoi(argv[2]);
 		data->eat_time = ft_atoi(argv[3]);
@@ -40,13 +39,14 @@ int	ft_parse_argc(int argc, char **argv, t_data *data)
 	return (-1);
 }
 
-int	ft_create_philos(t_data *data, t_philo *philo)
+t_philo *	ft_create_philos(t_data *data)
 {
 	int i;
+	t_philo *philo;
 
 	philo = (t_philo *)malloc(sizeof(t_philo) * data->philos);
 	if (philo == NULL)
-		return (-1);
+		exit (0);
     i = 0;
 	while (i < data->philos)
 	{
@@ -55,18 +55,47 @@ int	ft_create_philos(t_data *data, t_philo *philo)
 		philo[i].data = data;
 		i++;
 	}
-	return (0);
+	return (philo);
 }
 
-void ft_philo_process(t_philo *philo, int philos_num, int i)
+void ft_philo_process_1(t_philo *philo, int philos_num)
 {
+	int i;
+
+	i = 0;
     while (i < philos_num)
     {
 		philo[i].philo_pid = fork();
 		if (philo[i].philo_pid == 0)
-			//simulation_fanction(&philo[i]);//
-		i += 2;
+			simulation_fanction(&philo[i]);//
+		i = i + 2;
     }
+}
+
+void ft_philo_process_2(t_philo *philo, int philos_num)
+{
+	int i;
+
+	i = 1;
+    while (i < philos_num)
+    {
+		philo[i].philo_pid = fork();
+		if (philo[i].philo_pid == 0)
+			simulation_fanction(&philo[i]);//
+		i = i + 2;
+    }
+}
+
+void	kill_philos_process(t_philo *philo, int philos_num)
+{
+	int i;
+
+	i = 0;
+	while (i < philos_num)
+	{
+		kill(philo[i].philo_pid, SIGKILL);
+		i++;
+	}
 }
 
 int	main(int argc, char **argv)
@@ -78,17 +107,21 @@ int	main(int argc, char **argv)
 		return (0);
 	sem_unlink("sem_forks");
 	sem_unlink("sem_msg");
+	sem_unlink("sem_lunch_time");
 	data.sem_forks = sem_open("sem_forks", O_CREAT, S_IRWXU, data.philos / 2);
-	data.sem_msg = sem_open("sem_msg", S_IRWXU, O_CREAT, 1);
-	if (ft_create_philos(&data, philo) < 0)
-		return (0);
-	ft_philo_process(philo, data.philos, 0);
-	ft_philo_process(philo, data.philos, 1);
+	data.sem_msg = sem_open("sem_msg", O_CREAT, S_IRWXU, 1);
+	data.sem_msg = sem_open("sem_lunch_time", O_CREAT, S_IRWXU, 1);
+	philo = ft_create_philos(&data);
+	ft_philo_process_1(philo, data.philos);
+	ft_philo_process_2(philo, data.philos);
 	waitpid(-1, NULL, 0);
-	//kill_philos_process();//
+	kill_philos_process(philo, data.philos);//
 	sem_close(data.sem_forks);
 	sem_close(data.sem_msg);
+	sem_close(data.sem_lunch_time);
 	sem_unlink("sem_forks");
 	sem_unlink("sem_msg");
+	sem_unlink("sem_lunch_time");
+	free(philo);//
 	return (0);
 }

@@ -14,6 +14,7 @@
 # define PHILO_BONUS_H
 
 # include <sys/time.h>
+#include <signal.h>
 # include <unistd.h>
 # include <stdlib.h>
 # include <stdio.h>
@@ -28,7 +29,6 @@ typedef struct s_data
 	int		eat_time;
 	int		sleep_time;
 	int		lunches;
-	int		death_flag;
 	sem_t	*sem_forks;
 	sem_t	*sem_msg;
 	sem_t	*sem_lunch_time;

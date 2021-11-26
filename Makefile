@@ -1,6 +1,6 @@
-NAME = philo
+NAME = philo_bonus
 
-HEADER = philo.h
+HEADER = philo_bonus.h
 
 LIST =	main_philo_bonus.c\
 		philo_simulation_fanction_bonus.c\
@@ -10,9 +10,9 @@ LIST =	main_philo_bonus.c\
 
 OBJ = ${LIST:.c=.o}
 
-FLAGS = -Wall -Wextra -Werror -pthread -include philo.h
+FLAGS = -Wall -Wextra -Werror -pthread -include philo_bonus.h
 
-all: $(NAME)
+all:
 
 bonus: $(NAME)
 

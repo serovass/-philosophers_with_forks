@@ -27,7 +27,7 @@ void	ft_wait_for_time(unsigned long wait_time, t_philo *philo)
 	begin_time = ft_get_time_in_millis();
 	while ((ft_get_time_in_millis() - begin_time) < wait_time)
 	{
-		if (philo->data->death_flag || ft_check_if_death(philo))
+		if (ft_check_if_death(philo))
 			break ;
 		usleep(10);
 	}
