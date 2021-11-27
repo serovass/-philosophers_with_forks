@@ -35,7 +35,9 @@ int	ft_parse_argc(int argc, char **argv, t_data *data)
 		else if (data->lunches > 0 || data->lunches == -1)
 			return (0);
 	}
-	ft_write_msg("wrong usage!!!\n");
+	ft_write_msg("USAGE: ./philo_bonus [num of philos 1-200] "); 
+	ft_write_msg("[time to die >= 60] [time to eat >= 60] ");
+	ft_write_msg("[time to sleap >=60] [times to eat(opt)]\n");
 	return (-1);
 }
 
@@ -58,30 +60,13 @@ t_philo *	ft_create_philos(t_data *data)
 	return (philo);
 }
 
-void ft_philo_process_1(t_philo *philo, int philos_num)
+void ft_philo_process(t_philo *philo, int philos_num, int i)
 {
-	int i;
-
-	i = 0;
     while (i < philos_num)
     {
 		philo[i].philo_pid = fork();
 		if (philo[i].philo_pid == 0)
-			simulation_fanction(&philo[i]);//
-		i = i + 2;
-    }
-}
-
-void ft_philo_process_2(t_philo *philo, int philos_num)
-{
-	int i;
-
-	i = 1;
-    while (i < philos_num)
-    {
-		philo[i].philo_pid = fork();
-		if (philo[i].philo_pid == 0)
-			simulation_fanction(&philo[i]);//
+			simulation_fanction(&philo[i]);
 		i = i + 2;
     }
 }
@@ -112,16 +97,16 @@ int	main(int argc, char **argv)
 	data.sem_msg = sem_open("sem_msg", O_CREAT, S_IRWXU, 1);
 	data.sem_msg = sem_open("sem_lunch_time", O_CREAT, S_IRWXU, 1);
 	philo = ft_create_philos(&data);
-	ft_philo_process_1(philo, data.philos);
-	ft_philo_process_2(philo, data.philos);
+	ft_philo_process(philo, data.philos, 0);
+	ft_philo_process(philo, data.philos, 1);
 	waitpid(-1, NULL, 0);
-	kill_philos_process(philo, data.philos);//
+	kill_philos_process(philo, data.philos);
 	sem_close(data.sem_forks);
 	sem_close(data.sem_msg);
 	sem_close(data.sem_lunch_time);
 	sem_unlink("sem_forks");
 	sem_unlink("sem_msg");
 	sem_unlink("sem_lunch_time");
-	free(philo);//
+	free(philo);
 	return (0);
 }
