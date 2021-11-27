@@ -44,6 +44,8 @@ static void	ft_eat(t_philo *philo)
 			usleep(100);
 		return ;
 	}
+	if (ft_check_if_death(philo))
+		exit (-1);
     sem_wait(philo->data->sem_forks);
 	ft_write_philo_msg(philo, " has taken a fork\n");
     ft_write_philo_msg(philo, " has taken a fork\n");
@@ -70,8 +72,6 @@ void	simulation_fanction(t_philo *philo)
 		ft_eat(philo);
 		if (philo->lunches_to_eat > 0)
 			philo->lunches_to_eat--;
-		if (ft_check_if_death(philo))
-			exit (-1);
 		ft_write_philo_msg(philo, " is sleeping\n");
 		ft_wait_for_time(philo->data->sleep_time, philo);
 		if (ft_check_if_death(philo))
